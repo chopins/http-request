@@ -1,11 +1,9 @@
-#!/bin/php
+#!/usr/bin/php
 <?php
-
-use UI\Event;
 use UI\UI;
 
 define('W_DIR', __DIR__);
-define('LIB_UI', dirname(W_DIR). '/php-libui');
+define('LIB_UI', dirname(W_DIR) . '/php-libui');
 include LIB_UI . '/src/UI.php';
 class HTTP
 {
@@ -17,10 +15,11 @@ class HTTP
     const HTTP_METHOD = ['GET', 'POST'];
 
     const REQUEST_CONFIG = W_DIR . '/config/request.php';
-    public function __construct()
+    public function __construct($argv, $argc)
     {
-
-        
+        if ($argc < 2 || array_search('--nodaemon', $argv) === false) {
+            $this->daemon();
+        }
         self::$ui = new UI(LIB_UI . '/shared/libui.so');
         $this->config = include W_DIR . '/config/ui.php';
 
@@ -161,5 +160,29 @@ class HTTP
         }
         return false;
     }
+
+    public static function daemon()
+    {
+        $pid = pcntl_fork();
+        if ($pid > 0) {
+            exit;
+        } else if ($pid < 0) {
+            throw new \RuntimeException('process fork fail');
+        }
+
+        chdir('/');
+        umask('0');
+        posix_setsid();
+        fclose(STDIN);
+        fclose(STDOUT);
+        fclose(STDERR);
+        $pid = pcntl_fork();
+        if ($pid > 0) {
+            exit;
+        } else if ($pid < 0) {
+            throw new \RuntimeException('process fork fail');
+        }
+    }
 }
-new HTTP;
+
+new HTTP($argv, $argc);
