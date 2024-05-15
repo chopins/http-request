@@ -131,10 +131,6 @@ return  [
                                         'widget' => 'button', 'type' => 'text', 'title' => '另存为', 'stretchy' => 0,
                                         'click' => HTTP::$ui->event('HTTP::onSaveAs')
                                     ],
-                                    [
-                                        'widget' => 'input', 'type' => 'search', 'title' => '另存为', 'stretchy' => 0,
-                                        'click' => HTTP::$ui->event(function() { var_dump('11');})
-                                    ],
                                 ]],
 
                             ],
