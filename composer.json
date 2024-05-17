@@ -1,0 +1,30 @@
+{
+    "name": "toknot/http-request",
+    "description": "http request .",
+    "keywords": ["ui", "php","ffi","libui"],
+    "homepage": "http://toknot.com",
+    "license": "GNU AFFERO GENERAL PUBLIC LICENSE Version 3",
+    "version" : "0.1",
+    "authors": [
+        {
+            "name": "Szopen Xiao",
+            "email": "xiao@toknot.com",
+            "homepage": "http://toknot.com",
+            "role": "Founder"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/chopins/http-request/issues?state=open",
+        "source": "https://github.com/chopins/http-request"
+    },
+    "require": {
+        "php": ">=7.4.0",
+        "ext-ffi" : "*",
+        "toknot/php-libui" : "dev-master"
+    },
+    "autoload" : {
+        "psr-4": {
+            "UI\\": "src/"
+        }
+    }
+}

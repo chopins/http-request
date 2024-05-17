@@ -1,17 +1,20 @@
 #!/usr/bin/php
 <?php
+
+use Toknot\CFFI;
+use Toknot\FFIExtend;
 use UI\UI;
 
 define('W_DIR', __DIR__);
-define('LIB_UI', dirname(W_DIR) . '/php-libui');
-include LIB_UI . '/src/UI.php';
+//include W_DIR . '/vendor/autoload.php';
+include '../php-libui/examples/loadui.php';
 class HTTP
 {
     public static $ui;
     public static $table;
-    public $config = [];
     public static $requestList = [];
     public static $currentRequest = -1;
+    public static $logsFp = null;
     const HTTP_METHOD = ['GET', 'POST'];
 
     const REQUEST_CONFIG = W_DIR . '/config/request.php';
@@ -20,16 +23,19 @@ class HTTP
         if ($argc < 2 || array_search('--nodaemon', $argv) === false) {
             $this->daemon();
         }
-        self::$ui = new UI(LIB_UI . '/shared/libui.so');
-        $this->config = include W_DIR . '/config/ui.php';
+        self::logs();
+        
+        self::$ui = new UI(W_DIR . '/shared/libui.so');
+        //$this->config = include W_DIR . '/config/ui.php';
 
-        $this->config['close'] = self::$ui->event(function ($ui) {
-            $ui->quit();
-            return 1;
-        });
-        $build = self::$ui->build($this->config);
+        $build = self::$ui->build(W_DIR.'/config/ui.xml');
         $this->loadRequest();
         $build->show();
+
+    }
+    public static function quit($e)
+    {
+        $e->ui()->quit();
     }
     public function loadRequest()
     {
@@ -45,10 +51,16 @@ class HTTP
     {
         return self::$ui->build->getControlById($id);
     }
-    public static function onChangeRequestName($mh, $tm, $row, $col, $val)
+
+    public static function onSearch($e)
     {
-        self::$requestList[$row]['name'] = $val;
-        self::$table->updateRowColumValue($row, $col, $val);
+        
+    }
+    public static function onChangeRequestName($e)
+    {
+        $table = $e->getTarget();
+        self::$requestList[$e->row]['name'] = $e->val;
+        $table->updateRowColumValue($e->row, $e->col, $e->val);
         self::saveRequestList();
     }
     protected static function saveRequestList()
@@ -56,14 +68,14 @@ class HTTP
         $code = '<?php return ' . var_export(self::$requestList, true) . ';';
         file_put_contents(self::REQUEST_CONFIG, $code);
     }
-    public static function onSelectRequest($mh, $tm, $row, $col, $val)
+    public static function onSelectRequest($e)
     {
-        if ($val == 1) {
-            self::$table->setColumAllValue($col, 0);
-            self::fillFormData(self::$requestList[$row]);
+        if ($e->val == 1) {
+            $e->getTarget()->setColumAllValue($e->col, 0);
+            self::fillFormData(self::$requestList[$e->row]);
         }
-        self::$currentRequest = $row;
-        self::$table->updateRowColumValue($row, $col, $val);
+        self::$currentRequest = $e->row;
+        $e->getTarget()->updateRowColumValue($e->row, $e->col, $e->val);
     }
     public static function fillFormData($request)
     {
@@ -182,6 +194,16 @@ class HTTP
         } else if ($pid < 0) {
             throw new \RuntimeException('process fork fail');
         }
+       
+    }
+
+    public static function logs()
+    {
+        self::$logsFp = fopen(W_DIR . '/http.log', 'wb');
+        ob_start(function($buff, $phase) {
+            fwrite(self::$logsFp, $buff);
+            return true;
+        }, 1024);
     }
 }
 

@@ -1,1 +1,5 @@
-/config/request.php
+config/request.php
+vendor
+shared
+http.log
+composer.lock
