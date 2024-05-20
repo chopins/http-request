@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window title="API测试" width="800" height="600" fullscreen="0" onclose="HTTP::quit">
     <body>
-        <grid dir="h" padded="1">
+        <grid padded="1">
             <box dir="v" padded="1"
                 child_fit="1"
                 child_left="1"
                 child_top="1"
-                child_width="10"
+                child_width="20"
                 child_height="100"
-                child_hexpand="1"
-                child_halign="@UI\UI::ALIGN_FILL"
+                child_hexpand="0"
+                child_halign="@\UI\UI::ALIGN_FILL"
                 child_vexpand="1"
-                child_valign="@UI\UI::ALIGN_FILL">
+                child_valign="@\UI\UI::ALIGN_FILL">
                 <table bgColor="#EEE" id="requestList">
                     <th>
                         <i type="text" title="API"
@@ -23,26 +23,35 @@
                     </tbody>
                 </table>
             </box>
-            <grid padded="1">
-                <form child_left="26"
+            <grid padded="1" child_fit="1"
+                child_left="22"
+                child_top="1"
+                child_width="100"
+                child_height="100"
+                child_hexpand="1"
+                child_halign="@\UI\UI::ALIGN_FILL"
+                child_vexpand="1"
+                child_valign="@\UI\UI::ALIGN_FILL">
+                <form child_left="1"
+                    child_fit="1"
                     child_top="1"
-                    child_width="55"
-                    child_height="100"
+                    child_width="99"
+                    child_height="10"
                     child_hexpand="1"
-                    child_halign="@UI\UI::ALIGN_FILL"
+                    child_halign="@\UI\UI::ALIGN_FILL"
                     child_vexpand="0"
-                    child_valign="@UI\UI::ALIGN_START"
+                    child_valign="@\UI\UI::ALIGN_FILL"
                     padded="1"
                     id="requestForm">
-                    <grid padded="1">
+                    <grid padded="1" label="请求">
                         <input type="select" id="method" child_left="0"
                             child_top="1"
                             child_width="1"
                             child_height="10"
                             child_hexpand="1"
-                            child_halign="@UI\UI::ALIGN_FILL"
+                            child_halign="@\UI\UI::ALIGN_FILL"
                             child_vexpand="1"
-                            child_valign="@UI\UI::ALIGN_CENTER">
+                            child_valign="@\UI\UI::ALIGN_CENTER">
                             <option>GET</option>
                             <option>POST</option>
                         </input>
@@ -52,29 +61,29 @@
                             child_width="55"
                             child_height="10"
                             child_hexpand="1"
-                            child_halign="@UI\UI::ALIGN_FILL"
+                            child_halign="@\UI\UI::ALIGN_FILL"
                             child_vexpand="1"
-                            child_valign="@UI\UI::ALIGN_CENTER"></input>
+                            child_valign="@\UI\UI::ALIGN_CENTER"></input>
                     </grid>
                     <input type="textarea" id="header" label="Header"></input>
                     <input type="textarea" id="body" label="Body"></input>
-                    <box dir="h" padded="1" child_fit="0">
-                        <butto type="text" title="请求" onclick="HTTP::onRequest" stretchy="0"></butto>
-                        <butto type="text" title="保存" onclick="HTTP::onSave" stretchy="0"></butto>
-                        <butto type="text" title="另存为" onclick="HTTP::onSaveAs" stretchy="0"></butto>
+                    <box dir="h" padded="1" child_fit="0" label="操作">
+                        <button type="text" title="请求" onclick="HTTP::onRequest" stretchy="0"></button>
+                        <button type="text" title="保存" onclick="HTTP::onSave" stretchy="0"></button>
+                        <button type="text" title="另存为" onclick="HTTP::onSaveAs" stretchy="0"></button>
                         <input type="search" stretchy="0" onchange="HTTP::onSearch"></input>
                     </box>
                 </form>
-                <group title="输出" child_left="26"
-                    child_top="100"
-                    child_width="55"
-                    child_height="500"
+                <group title="输出" child_left="1"
+                    child_top="12"
+                    child_width="100"
+                    child_height="80"
                     child_hexpand="1"
-                    child_halign="@UI\UI::ALIGN_FILL"
+                    child_halign="@\UI\UI::ALIGN_FILL"
                     child_vexpand="1"
-                    child_valign="@UI\UI::ALIGN_FILL"
+                    child_valign="@\UI\UI::ALIGN_FILL"
                     margin="1">
-                <input type="textarea" wrap="1" id="outputText"></input>
+                    <input type="textarea" wrap="1" id="outputText"></input>
                 </group>
             </grid>
         </grid>

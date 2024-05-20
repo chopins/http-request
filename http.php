@@ -6,8 +6,9 @@ use Toknot\FFIExtend;
 use UI\UI;
 
 define('W_DIR', __DIR__);
-//include W_DIR . '/vendor/autoload.php';
-include '../php-libui/examples/loadui.php';
+include W_DIR . '/vendor/autoload.php';
+define('LIBUI_PATH', W_DIR . '/shared/libui.so');
+
 class HTTP
 {
     public static $ui;
@@ -22,8 +23,8 @@ class HTTP
     {
         if ($argc < 2 || array_search('--nodaemon', $argv) === false) {
             $this->daemon();
+            self::logs();
         }
-        self::logs();
         
         self::$ui = new UI(W_DIR . '/shared/libui.so');
         //$this->config = include W_DIR . '/config/ui.php';
@@ -59,8 +60,8 @@ class HTTP
     public static function onChangeRequestName($e)
     {
         $table = $e->getTarget();
-        self::$requestList[$e->row]['name'] = $e->val;
-        $table->updateRowColumValue($e->row, $e->col, $e->val);
+        self::$requestList[$e->row]['name'] = $e->value;
+        $table->updateRowColumValue($e->row, $e->col, $e->value);
         self::saveRequestList();
     }
     protected static function saveRequestList()
@@ -70,12 +71,12 @@ class HTTP
     }
     public static function onSelectRequest($e)
     {
-        if ($e->val == 1) {
+        if ($e->value == 1) {
             $e->getTarget()->setColumAllValue($e->col, 0);
             self::fillFormData(self::$requestList[$e->row]);
         }
         self::$currentRequest = $e->row;
-        $e->getTarget()->updateRowColumValue($e->row, $e->col, $e->val);
+        $e->getTarget()->updateRowColumValue($e->row, $e->col, $e->value);
     }
     public static function fillFormData($request)
     {
