@@ -1,8 +1,6 @@
 #!/usr/bin/php
 <?php
 
-use Toknot\CFFI;
-use Toknot\FFIExtend;
 use UI\UI;
 
 define('W_DIR', __DIR__);
