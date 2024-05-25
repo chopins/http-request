@@ -4,9 +4,9 @@
 use UI\UI;
 
 define('W_DIR', __DIR__);
-include W_DIR . '/vendor/autoload.php';
+#include W_DIR . '/vendor/autoload.php';
 define('LIBUI_PATH', W_DIR . '/shared/libui.so');
-
+include '../php-libui/examples/loadui.php';
 class HTTP
 {
     public static $ui;
@@ -53,7 +53,6 @@ class HTTP
 
     public static function onSearch($e)
     {
-        
     }
     public static function onChangeRequestName($e)
     {
@@ -91,6 +90,23 @@ class HTTP
             $res[$id] = self::getControl($id)->getValue();
         }
         return $res;
+    }
+
+    public static function onDraw($e)
+    {
+        var_dump(__METHOD__);
+    }
+    public static function onmouseEvent($e)
+    {
+        var_dump(__METHOD__);
+    }
+    public static function onmouseCrossed($e)
+    {
+        var_dump(__METHOD__);
+    }
+    public static function onkeyEvent($e)
+    {
+        var_dump(__METHOD__);
     }
     public static function onSave()
     {

@@ -9,9 +9,9 @@
                 child_width="20"
                 child_height="100"
                 child_hexpand="0"
-                child_halign="@\UI\UI::ALIGN_FILL"
+                child_halign="@UI\Struct\UIAlign::ALIGN_FILL"
                 child_vexpand="1"
-                child_valign="@\UI\UI::ALIGN_FILL">
+                child_valign="@UI\Struct\UIAlign::ALIGN_FILL">
                 <table bgColor="#EEE" id="requestList">
                     <th>
                         <i type="text" title="API"
@@ -29,18 +29,18 @@
                 child_width="100"
                 child_height="100"
                 child_hexpand="1"
-                child_halign="@\UI\UI::ALIGN_FILL"
+                child_halign="@UI\Struct\UIAlign::ALIGN_FILL"
                 child_vexpand="1"
-                child_valign="@\UI\UI::ALIGN_FILL">
+                child_valign="@UI\Struct\UIAlign::ALIGN_FILL">
                 <form child_left="1"
                     child_fit="1"
                     child_top="1"
                     child_width="99"
                     child_height="10"
                     child_hexpand="1"
-                    child_halign="@\UI\UI::ALIGN_FILL"
+                    child_halign="@UI\Struct\UIAlign::ALIGN_FILL"
                     child_vexpand="0"
-                    child_valign="@\UI\UI::ALIGN_FILL"
+                    child_valign="@UI\Struct\UIAlign::ALIGN_FILL"
                     padded="1"
                     id="requestForm">
                     <grid padded="1" label="请求">
@@ -49,9 +49,9 @@
                             child_width="1"
                             child_height="10"
                             child_hexpand="1"
-                            child_halign="@\UI\UI::ALIGN_FILL"
+                            child_halign="@UI\Struct\UIAlign::ALIGN_FILL"
                             child_vexpand="1"
-                            child_valign="@\UI\UI::ALIGN_CENTER">
+                            child_valign="@UI\Struct\UIAlign::ALIGN_CENTER">
                             <option>GET</option>
                             <option>POST</option>
                         </input>
@@ -61,9 +61,9 @@
                             child_width="55"
                             child_height="10"
                             child_hexpand="1"
-                            child_halign="@\UI\UI::ALIGN_FILL"
+                            child_halign="@UI\Struct\UIAlign::ALIGN_FILL"
                             child_vexpand="1"
-                            child_valign="@\UI\UI::ALIGN_CENTER"></input>
+                            child_valign="@UI\Struct\UIAlign::ALIGN_CENTER"></input>
                     </grid>
                     <input type="textarea" id="header" label="Header"></input>
                     <input type="textarea" id="body" label="Body"></input>
@@ -74,14 +74,29 @@
                         <input type="search" stretchy="0" onchange="HTTP::onSearch"></input>
                     </box>
                 </form>
+                <!-- <group title="Area" child_left="1" child_top="12"
+                child_width="100"
+                child_height="80"
+                child_hexpand="1"
+                child_halign="@UI\Struct\UIAlign::ALIGN_START"
+                child_vexpand="1"
+                child_valign="@UI\Struct\UIAlign::ALIGN_START"
+                margin="1">
+                    <canvas type="scroll" width="200" height="300" 
+                    ondraw="HTTP::onDraw" onmouseEvent="HTTP::onmouseEvent"
+                    onmouseCrossed="HTTP::onmouseCrossed"
+                    onkeyEvent="HTTP::onkeyEvent">
+
+                    </canvas>
+                </group> -->
                 <group title="输出" child_left="1"
-                    child_top="12"
+                    child_top="50"
                     child_width="100"
                     child_height="80"
                     child_hexpand="1"
-                    child_halign="@\UI\UI::ALIGN_FILL"
+                    child_halign="@UI\Struct\UIAlign::ALIGN_FILL"
                     child_vexpand="1"
-                    child_valign="@\UI\UI::ALIGN_FILL"
+                    child_valign="@UI\Struct\UIAlign::ALIGN_FILL"
                     margin="1">
                     <input type="textarea" wrap="1" id="outputText"></input>
                 </group>
