@@ -1,6 +1,15 @@
 #!/usr/bin/php
 <?php
 
+use UI\Control\AttributeString;
+use UI\Control\DrawText;
+use UI\Event;
+use UI\Struct\DrawTextAlign;
+use UI\Struct\FontDescriptor;
+use UI\Struct\TextItalic;
+use UI\Struct\TextLayoutParams;
+use UI\Struct\TextStretch;
+use UI\Struct\TextWeight;
 use UI\UI;
 
 define('W_DIR', __DIR__);
@@ -9,7 +18,7 @@ define('LIBUI_PATH', W_DIR . '/shared/libui.so');
 include '../php-libui/examples/loadui.php';
 class HTTP
 {
-    public static $ui;
+    public static UI $ui;
     public static $table;
     public static $requestList = [];
     public static $currentRequest = -1;
@@ -19,18 +28,17 @@ class HTTP
     const REQUEST_CONFIG = W_DIR . '/config/request.php';
     public function __construct($argv, $argc)
     {
-        if ($argc < 2 || array_search('--nodaemon', $argv) === false) {
+        if ($argc < 2 || array_search('-n', $argv) === false) {
             $this->daemon();
             self::logs();
         }
-        
+
         self::$ui = new UI(W_DIR . '/shared/libui.so');
         //$this->config = include W_DIR . '/config/ui.php';
 
-        $build = self::$ui->build(W_DIR.'/config/ui.xml');
+        $build = self::$ui->build(W_DIR . '/config/ui.xml');
         $this->loadRequest();
         $build->show();
-
     }
     public static function quit($e)
     {
@@ -51,8 +59,12 @@ class HTTP
         return self::$ui->build->getControlById($id);
     }
 
-    public static function onSearch($e)
+    public static function onSearch(Event $e)
     {
+        $txt = self::getControl('outputText')->getValue();
+        if (($idx = strpos($txt, $e->getTarget()->getValue())) !== false) {
+            
+        }
     }
     public static function onChangeRequestName($e)
     {
@@ -92,13 +104,49 @@ class HTTP
         return $res;
     }
 
-    public static function onDraw($e)
+    public static function onDraw(Event $e)
     {
-        var_dump(__METHOD__);
+        $build = $e->build();
+        //$font = $build->getControlById('set-font')->getValue();
+        $font = new FontDescriptor($build);
+        $font->fill('Sans', 14);
+        //$color = $build->getControlById('set-color')->getValue();
+
+        $txt = self::getControl('outputText')->getValue();
+
+        $string = new AttributeString($build, ['string' => $txt, 'color' => 'rgba(33,33,33,0.8)']);
+        $mt = $font->queryFontMetrics();
+        $line = substr_count($txt, PHP_EOL);
+        $height = ($mt['textHeight'] + $mt['maxHorizontalAdvance']) * $line;
+
+        $e->getTarget()->setSize(1000, $height);
+
+        self::addTextColor($string);
+
+        $textPrams = new TextLayoutParams($build, $string, $font, 1000, DrawTextAlign::DRAW_TEXT_ALIGN_LEFT);
+        $draw = DrawText::newFromParams($build, $textPrams);
+        $e->getTarget()->drawText($draw, 0, 0);
+        $draw->free();
     }
+
+    public static function addTextColor(AttributeString $str)
+    {
+        $str->addAttr('color', '#E71D1D', 1, 100);
+    }
+
     public static function onmouseEvent($e)
     {
-        var_dump(__METHOD__);
+        $event = $e->mouseEvent;
+        if ($event['down'] == 1 && $event['count'] == 1) {
+            var_dump('mp down');
+        } else if ($event['down'] == 1 && $event['count'] == 2) {
+            var_dump('double');
+        } else if ($event['up'] == 1) {
+            var_dump('mp up');
+        } else if ($event['drag'] == 1) {
+            var_dump('mouse hold');
+        } else if ($event['up'] == 3 && $event['count'] == 1) {
+        }
     }
     public static function onmouseCrossed($e)
     {
@@ -108,12 +156,17 @@ class HTTP
     {
         var_dump(__METHOD__);
     }
+    public static function onDragbroken($e)
+    {
+        var_dump(__METHOD__);
+    }
     public static function onSave()
     {
         if (self::$currentRequest < 0) {
             return self::onSaveAs();
         }
         $ret = self::getFormData();
+        $ret['name'] = self::$requestList[self::$currentRequest]['name'];
         self::$requestList[self::$currentRequest] = $ret;
         self::saveRequestList();
     }
@@ -127,9 +180,13 @@ class HTTP
         self::$table->setColumAllValue(1, 0);
         self::$table->addRow([$ret['name'], 1]);
     }
-    public static function onRequest()
+    public static function onRequest($e)
     {
         $params = self::getFormData();
+        if (empty($params['url'])) {
+            $e->build()->getWin()->msgBoxError('API提示', '未选中API或URL');
+            return;
+        }
         $op = [];
         $hst = explode("\n", $params['header']);
         $hs = [];
@@ -209,13 +266,12 @@ class HTTP
         } else if ($pid < 0) {
             throw new \RuntimeException('process fork fail');
         }
-       
     }
 
     public static function logs()
     {
         self::$logsFp = fopen(W_DIR . '/http.log', 'wb');
-        ob_start(function($buff, $phase) {
+        ob_start(function ($buff, $phase) {
             fwrite(self::$logsFp, $buff);
             return true;
         }, 1024);

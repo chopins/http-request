@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<window title="API测试" width="800" height="600" fullscreen="0" onclose="HTTP::quit">
+<window title="API测试" width="1000" height="600" fullscreen="0" onclose="HTTP::quit">
+    <menu>
+        <i>test
+            <c>open</c>
+        </i>
+    </menu>
     <body>
         <grid padded="1">
             <box dir="v" padded="1"
@@ -26,18 +31,15 @@
             <grid padded="1" child_fit="1"
                 child_left="22"
                 child_top="1"
-                child_width="100"
+                child_width="78"
                 child_height="100"
-                child_hexpand="1"
-                child_halign="@UI\Struct\UIAlign::ALIGN_FILL"
-                child_vexpand="1"
-                child_valign="@UI\Struct\UIAlign::ALIGN_FILL">
+                >
                 <form child_left="1"
                     child_fit="1"
                     child_top="1"
-                    child_width="99"
+                    child_width="76"
                     child_height="10"
-                    child_hexpand="1"
+                    child_hexpand="0"
                     child_halign="@UI\Struct\UIAlign::ALIGN_FILL"
                     child_vexpand="0"
                     child_valign="@UI\Struct\UIAlign::ALIGN_FILL"
@@ -74,32 +76,24 @@
                         <input type="search" stretchy="0" onchange="HTTP::onSearch"></input>
                     </box>
                 </form>
-                <!-- <group title="Area" child_left="1" child_top="12"
-                child_width="100"
-                child_height="80"
-                child_hexpand="1"
-                child_halign="@UI\Struct\UIAlign::ALIGN_START"
-                child_vexpand="1"
-                child_valign="@UI\Struct\UIAlign::ALIGN_START"
-                margin="1">
-                    <canvas type="scroll" width="200" height="300" 
-                    ondraw="HTTP::onDraw" onmouseEvent="HTTP::onmouseEvent"
-                    onmouseCrossed="HTTP::onmouseCrossed"
-                    onkeyEvent="HTTP::onkeyEvent">
-
-                    </canvas>
-                </group> -->
-                <group title="输出" child_left="1"
-                    child_top="50"
-                    child_width="100"
-                    child_height="80"
-                    child_hexpand="1"
-                    child_halign="@UI\Struct\UIAlign::ALIGN_FILL"
-                    child_vexpand="1"
-                    child_valign="@UI\Struct\UIAlign::ALIGN_FILL"
-                    margin="1">
-                    <input type="textarea" wrap="1" id="outputText"></input>
-                </group>
+                <tab child_top="20" child_fit="1" child_left="1"
+                child_width="76"
+                child_height="60"
+                child_hexpand="0"
+                child_halign="@UI\Struct\UIAlign::ALIGN_FILL"
+                child_vexpand="0"
+                child_valign="@UI\Struct\UIAlign::ALIGN_FILL" margin="1">
+                    <page title="Format">
+                            <canvas id="outputCanvas" width="600" height="80" type="scroll"
+                                ondraw="HTTP::onDraw" onmouseEvent="HTTP::onMouseEvent"
+                                onmouseCrossed="HTTP::onMouseCrossed"
+                                onkeyEvent="HTTP::onKeyEvent" ondragbroken="HTTP::onDragbroken">
+                            </canvas>
+                    </page>
+                    <page title="Text">
+                        <input type="textarea" wrap="1" id="outputText"></input>
+                    </page>
+                </tab>
             </grid>
         </grid>
     </body>
