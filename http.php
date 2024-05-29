@@ -14,9 +14,9 @@ use UI\Struct\WindowResizeEdge;
 use UI\UI;
 
 define('W_DIR', __DIR__);
-#include W_DIR . '/vendor/autoload.php';
-define('LIBUI_PATH', W_DIR . '/shared/libui.so');
-include '../php-libui/examples/loadui.php';
+
+include W_DIR . '/vendor/autoload.php';
+
 class HTTP
 {
     public static UI $ui;
