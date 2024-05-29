@@ -31,7 +31,7 @@ class HTTP
     const REQUEST_CONFIG = W_DIR . '/config/request.php';
     public function __construct($argv, $argc)
     {
-        if ($argc < 2 || array_search('-n', $argv) === false) {
+        if (array_search('-d', $argv)) {
             $this->daemon();
             self::logs();
         }
@@ -145,7 +145,7 @@ class HTTP
         $e->getTarget()->setSize(100, self::$drawHeight);
         $now = time();
         if($now - $execTime > 3) {
-            var_dump(memory_get_peak_usage());
+            echo date('Y-m-d H:i:s') . '|Mem Peak Usage:'. memory_get_peak_usage();
             $execTime = $now;
         }
     }
@@ -293,7 +293,7 @@ class HTTP
 
     public static function logs()
     {
-        self::$logsFp = fopen(W_DIR . '/http.log', 'wb');
+        self::$logsFp = fopen(W_DIR . '/http.log', 'ab');
         ob_start(function ($buff, $phase) {
             fwrite(self::$logsFp, $buff);
             return true;
