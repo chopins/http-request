@@ -10,6 +10,7 @@ use UI\Struct\TextItalic;
 use UI\Struct\TextLayoutParams;
 use UI\Struct\TextStretch;
 use UI\Struct\TextWeight;
+use UI\Struct\WindowResizeEdge;
 use UI\UI;
 
 define('W_DIR', __DIR__);
@@ -23,6 +24,8 @@ class HTTP
     public static $requestList = [];
     public static $currentRequest = -1;
     public static $logsFp = null;
+    protected static $draw;
+    protected static $drawHeight;
     const HTTP_METHOD = ['GET', 'POST'];
 
     const REQUEST_CONFIG = W_DIR . '/config/request.php';
@@ -62,8 +65,14 @@ class HTTP
     public static function onSearch(Event $e)
     {
         $txt = self::getControl('outputText')->getValue();
-        if (($idx = strpos($txt, $e->getTarget()->getValue())) !== false) {
-            
+        $stxt =  $e->getTarget()->getValue();
+        if(empty($stxt)) {
+            return self::getControl('search-text')->setTitle("");
+        }
+        if (($idx = substr_count($txt, $stxt))) {
+            self::getControl('search-text')->setTitle("Found $idx");
+        } else {
+            self::getControl('search-text')->setTitle('Not Found');
         }
     }
     public static function onChangeRequestName($e)
@@ -104,29 +113,41 @@ class HTTP
         return $res;
     }
 
-    public static function onDraw(Event $e)
+    public static function setAreaString($e)
     {
+        if(self::$draw) {
+            self::$draw->free();
+        }
         $build = $e->build();
-        //$font = $build->getControlById('set-font')->getValue();
         $font = new FontDescriptor($build);
         $font->fill('Sans', 14);
         //$color = $build->getControlById('set-color')->getValue();
 
         $txt = self::getControl('outputText')->getValue();
-
-        $string = new AttributeString($build, ['string' => $txt, 'color' => 'rgba(33,33,33,0.8)']);
+        $string = $build->createItem(['widget' => 'string', 'string' => $txt, 'color' => 'rgba(33,33,33,0.8)']);
         $mt = $font->queryFontMetrics();
         $line = substr_count($txt, PHP_EOL);
-        $height = ($mt['textHeight'] + $mt['maxHorizontalAdvance']) * $line;
-
-        $e->getTarget()->setSize(1000, $height);
+        self::$drawHeight = ($mt['textHeight'] + $mt['maxHorizontalAdvance']) * $line;
 
         self::addTextColor($string);
 
         $textPrams = new TextLayoutParams($build, $string, $font, 1000, DrawTextAlign::DRAW_TEXT_ALIGN_LEFT);
-        $draw = DrawText::newFromParams($build, $textPrams);
-        $e->getTarget()->drawText($draw, 0, 0);
-        $draw->free();
+        self::$draw = DrawText::newFromParams($build, $textPrams);
+    }
+
+    public static function onDraw(Event $e)
+    {
+        static $execTime = 0;
+        if(!self::$draw) {
+            return;
+        }
+        $e->getTarget()->drawText(self::$draw, 0, 0);
+        $e->getTarget()->setSize(100, self::$drawHeight);
+        $now = time();
+        if($now - $execTime > 3) {
+            var_dump(memory_get_peak_usage());
+            $execTime = $now;
+        }
     }
 
     public static function addTextColor(AttributeString $str)
@@ -136,6 +157,7 @@ class HTTP
 
     public static function onmouseEvent($e)
     {
+        return;
         $event = $e->mouseEvent;
         if ($event['down'] == 1 && $event['count'] == 1) {
             var_dump('mp down');
@@ -150,15 +172,15 @@ class HTTP
     }
     public static function onmouseCrossed($e)
     {
-        var_dump(__METHOD__);
+        //var_dump(__METHOD__);
     }
     public static function onkeyEvent($e)
     {
-        var_dump(__METHOD__);
+        //var_dump(__METHOD__);
     }
     public static function onDragbroken($e)
     {
-        var_dump(__METHOD__);
+        //var_dump(__METHOD__);
     }
     public static function onSave()
     {
@@ -214,7 +236,7 @@ class HTTP
         $ch = curl_init(trim($url));
         curl_setopt_array($ch, $op);
         $ret = curl_exec($ch);
-        if ($isJson) {
+        if ($isJson || strlen($ret) < 1000) {
             $json = json_decode($ret, true);
             if ($json) {
                 $c = var_export($json, true);
@@ -229,6 +251,7 @@ class HTTP
         }
 
         curl_close($ch);
+        self::setAreaString($e);
     }
     public static function checkType($h, $type)
     {

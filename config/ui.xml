@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<window title="API测试" width="1000" height="600" fullscreen="0" onclose="HTTP::quit">
+<window title="API测试" width="1000" height="800" fullscreen="0" onclose="HTTP::quit">
     <menu>
         <i>test
             <c>open</c>
@@ -74,17 +74,18 @@
                         <button type="text" title="保存" onclick="HTTP::onSave" stretchy="0"></button>
                         <button type="text" title="另存为" onclick="HTTP::onSaveAs" stretchy="0"></button>
                         <input type="search" stretchy="0" onchange="HTTP::onSearch"></input>
+                        <label id="search-text" title=""></label>
                     </box>
                 </form>
                 <tab child_top="20" child_fit="1" child_left="1"
-                child_width="76"
+                child_width="70"
                 child_height="60"
                 child_hexpand="0"
                 child_halign="@UI\Struct\UIAlign::ALIGN_FILL"
                 child_vexpand="0"
                 child_valign="@UI\Struct\UIAlign::ALIGN_FILL" margin="1">
                     <page title="Format">
-                            <canvas id="outputCanvas" width="600" height="80" type="scroll"
+                            <canvas id="outputCanvas" width="100" height="300" type="scroll"
                                 ondraw="HTTP::onDraw" onmouseEvent="HTTP::onMouseEvent"
                                 onmouseCrossed="HTTP::onMouseCrossed"
                                 onkeyEvent="HTTP::onKeyEvent" ondragbroken="HTTP::onDragbroken">
