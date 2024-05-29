@@ -3,3 +3,4 @@ vendor
 shared
 http.log
 composer.lock
+output.html
