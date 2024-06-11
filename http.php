@@ -2,15 +2,15 @@
 <?php
 
 use UI\Control\AttributeString;
+use UI\Control\Box;
+use UI\Control\Button;
 use UI\Control\DrawText;
+use UI\Control\Input;
 use UI\Event;
 use UI\Struct\DrawTextAlign;
 use UI\Struct\FontDescriptor;
-use UI\Struct\TextItalic;
 use UI\Struct\TextLayoutParams;
-use UI\Struct\TextStretch;
-use UI\Struct\TextWeight;
-use UI\Struct\WindowResizeEdge;
+use UI\Struct\UIAlign;
 use UI\UI;
 
 define('W_DIR', __DIR__);
@@ -26,6 +26,8 @@ class HTTP
     public static $logsFp = null;
     protected static $draw;
     protected static $drawHeight;
+    protected static $inputIds;
+
     const HTTP_METHOD = ['GET', 'POST'];
 
     const REQUEST_CONFIG = W_DIR . '/config/request.php';
@@ -66,7 +68,7 @@ class HTTP
     {
         $txt = self::getControl('outputText')->getValue();
         $stxt =  $e->getTarget()->getValue();
-        if(empty($stxt)) {
+        if (empty($stxt)) {
             return self::getControl('search-text')->setTitle("");
         }
         if (($idx = substr_count($txt, $stxt))) {
@@ -74,6 +76,138 @@ class HTTP
         } else {
             self::getControl('search-text')->setTitle('Not Found');
         }
+    }
+    public static function onDeleteFormInput(Event $e)
+    {
+        $name =  $e->getTarget()->name;
+        $idx = array_search($name, self::$inputIds, true);
+        $f = self::getControl('edit-body-form');
+        $f->delete($idx);
+        unset(self::$inputIds[$idx]);
+        self::$inputIds = array_values(self::$inputIds);
+        $f->hide();
+        $f->show();
+    }
+    public static function addFormInput($e)
+    {
+        static $add = 0;
+        self::$inputIds[] = $add;
+        $f = self::getControl('edit-body-form');
+        $boxAttr = ['dir' => 'h', 'child_fit' => 0, 'label' => '添加' . $add, 'stretchy' => 0];
+        $box = new Box($e->build(), $boxAttr);
+
+        $kopt = ['type' => 'text', 'id' => 'add-key' . $add];
+        $key = new Input($e->build(), $kopt);
+        $box->appendChild($key, $kopt);
+        $vopt = ['type' => 'text', 'id' => 'add-value' . $add];
+        $value = new Input($e->build(), $vopt);
+        $box->appendChild($value, $vopt);
+
+        $delopt = [
+            'type' => 'text', 'title' => '删除',
+            'name' => $add,
+            'click' => $e->ui()->event([self::class, 'onDeleteFormInput'])
+        ];
+        $del = new Button($e->build(), $delopt);
+        $box->appendChild($del, $delopt);
+
+        $f->appendChild($box, $boxAttr);
+        $add++;
+    }
+    public static function onEditBody(Event $e)
+    {
+        $body = self::getControl('body')->getValue();
+        parse_str($body, $params);
+        $childs = [];
+        self::$inputIds = [];
+        foreach ($params as $k => $v) {
+            $box = [
+                'widget' => 'grid', 'padded' => 0, 'child_fit' => 0, 'label' => $k,
+                'child_left' => 0, 'child_top' => 2,
+                'child_hexpand' => 0,
+                'child_halign' => UIAlign::ALIGN_FILL,
+                'child_vexpand' => 0,
+                'child_valign' => UIAlign::ALIGN_CENTER,
+                'child_height' => 50,
+                'childs' => [
+                    [
+                        'widget' => 'input', 'type' => 'text', 'label' => $k, 'value' => $v, 'id' => $k,
+                        'child_width' => 200, 'child_hexpand' => 1, 'child_vexpand' => 1,
+                    ],
+                    [
+                        'widget' => 'button', 'name' => $k, 'child_left' => 200, 'type' => 'text', 'title' => '删除', 'child_width' => 20,
+                        'click' => $e->ui()->event([self::class, 'onDeleteFormInput'])
+                    ],
+                ]
+            ];
+            $childs[] = $box;
+            self::$inputIds[] = $k;
+        }
+        $formOp = [
+            'widget' => 'box', 'dir' => 'h', 'child_fit' => 0, 'label' => '操作', 'child_height' => 50, 'child_top' => 550,
+            'childs' => [
+                ['widget' => 'button', 'type' => 'text', 'title' => '确定', 'click' =>
+                $e->ui()->event(function ($e) {
+                    $newParams = [];
+                    foreach (self::$inputIds as $id) {
+                        if ($id === null) {
+                            continue;
+                        } else if (is_int($id)) {
+                            $key = self::getControl('add-key' . $id)->getValue();
+                            $value = self::getControl('add-value' . $id)->getValue();
+                            $newParams[$key] = $value;
+                        } else {
+                            $value =  self::getControl($id)->getValue();
+                            $newParams[$id] = $value;
+                        }
+                    }
+
+                    $newBody = http_build_query($newParams);
+                    self::getControl('body')->setValue($newBody);
+                    $w = self::getControl('edit-body-win');
+                    $w->hide();
+                    $w->destroy();
+                })],
+                ['widget' => 'button', 'type' => 'text', 'title' => '取消', 'click' => $e->ui()->event(function ($e) {
+                    $w = self::getControl('edit-body-win');
+                    $w->hide();
+                    $w->destroy();
+                })],
+                [
+                    'widget' => 'button', 'type' => 'text', 'title' => '增加一项',
+                    'click' => $e->ui()->event([self::class, 'addFormInput'])
+                ],
+            ], 'stretchy' => 0, 'label' => '操作'
+        ];
+
+        $winGrid = [[
+            'widget' => 'grid',
+            'padded' => 0, 'child_fit' => 0,
+            'child_width' => '900',
+            'child_left' => 0, 'child_top' => 2,
+            'child_hexpand' => 0,
+            'child_halign' => UIAlign::ALIGN_FILL,
+            'child_vexpand' => 0,
+            'child_valign' => UIAlign::ALIGN_FILL,
+            'childs' => [
+                [
+                    'widget' => 'form',
+                    'id' => 'edit-body-form',
+                    'padded' => 0,
+                    'childs' => $childs,
+                    'child_height' => 500,
+                    'child_vexpand' => 1,
+                    'child_hexpand' => 1,
+                ],
+                $formOp
+            ]
+        ]];
+        $winConf = ['widget' => 'window', 'id' => 'edit-body-win', 'width' => 800, 'childs' => $winGrid, 'height' => 600, 'title' => 'Edit Boyd Item', 'close' => $e->ui()->event(function (Event $e) {
+            $e->getTarget()->hide();
+            $e->getTarget()->destroy();
+        })];
+        $win = $e->build()->window($winConf, false);
+        $win->show();
     }
     public static function onChangeRequestName($e)
     {
@@ -115,7 +249,7 @@ class HTTP
 
     public static function setAreaString($e)
     {
-        if(self::$draw) {
+        if (self::$draw) {
             self::$draw->free();
         }
         $build = $e->build();
@@ -138,14 +272,14 @@ class HTTP
     public static function onDraw(Event $e)
     {
         static $execTime = 0;
-        if(!self::$draw) {
+        if (!self::$draw) {
             return;
         }
         $e->getTarget()->drawText(self::$draw, 0, 0);
         $e->getTarget()->setSize(100, self::$drawHeight);
         $now = time();
-        if($now - $execTime > 3) {
-            echo date('Y-m-d H:i:s') . '|Mem Peak Usage:'. memory_get_peak_usage();
+        if ($now - $execTime > 3) {
+            echo date('Y-m-d H:i:s') . '|Mem Peak Usage:' . memory_get_peak_usage();
             $execTime = $now;
         }
     }

@@ -75,6 +75,7 @@
                         <button type="text" title="另存为" onclick="HTTP::onSaveAs" stretchy="0"></button>
                         <input type="search" stretchy="0" onchange="HTTP::onSearch"></input>
                         <label id="search-text" title=""></label>
+                        <button type="text" title="编辑Body" onclick="HTTP::onEditBody" stretchy="0"></button>
                     </box>
                 </form>
                 <tab child_top="20" child_fit="1" child_left="1"
