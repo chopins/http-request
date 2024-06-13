@@ -85,8 +85,6 @@ class HTTP
         $f->delete($idx);
         unset(self::$inputIds[$idx]);
         self::$inputIds = array_values(self::$inputIds);
-        $f->hide();
-        $f->show();
     }
     public static function addFormInput($e)
     {
@@ -279,14 +277,47 @@ class HTTP
         $e->getTarget()->setSize(100, self::$drawHeight);
         $now = time();
         if ($now - $execTime > 3) {
-            echo date('Y-m-d H:i:s') . '|Mem Peak Usage:' . memory_get_peak_usage();
             $execTime = $now;
         }
     }
 
     public static function addTextColor(AttributeString $str)
     {
-        $str->addAttr('color', '#E71D1D', 1, 100);
+        $text = $str->getAttr('string');
+        $len = strlen($text);
+
+        $nest = 0;
+        for($i=0;$i<$len; $i++) {
+            $char = $text[$i];
+            $bit = ord($char);
+            $c = 6;
+
+            while(($bit & 128) && ($bit &( 1<< $c ))) {
+                $i++;
+                $char .= $text[$i];
+                $c--;
+            }
+            if($char == "'") {
+                if($nest) {
+                    $str->addAttr('color', '#5faa2c', $nest, $i +1);
+                    $nest = 0;
+                } else {
+                    $nest = $i;
+                }
+            } elseif($char == '(' && !$nest) {
+                $str->addAttr('color', '#aa2c90', $i, $i+1);
+            } else if($char == ')' && !$nest) {
+                $str->addAttr('color', '#aa2c90', $i, $i+1);
+            } else if($char == '=') {
+                $i++;
+                if($text[$i] == '>') {
+                    $str->addAttr('color', '#aa2c90', $i - 1, $i+1);
+                }
+            } else if(!$nest && $char == 'a' && "{$text[$i+1]}{$text[$i+2]}{$text[$i+3]}{$text[$i+4]}"== 'rray') {
+                $str->addAttr('color', '#aa2c90', $i, $i+5);
+                $i = $i+4;
+            }
+        }
     }
 
     public static function onmouseEvent($e)

@@ -4,3 +4,4 @@ shared
 http.log
 composer.lock
 output.html
+test.php
