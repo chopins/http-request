@@ -28,9 +28,9 @@ class HTTP
     protected static $drawHeight;
     protected static $inputIds;
 
-    const HTTP_METHOD = ['GET', 'POST'];
+    public const HTTP_METHOD = ['GET', 'POST'];
 
-    const REQUEST_CONFIG = W_DIR . '/config/request.php';
+    public const REQUEST_CONFIG = W_DIR . '/config/request.php';
     public function __construct($argv, $argc)
     {
         if (array_search('-d', $argv)) {
@@ -67,7 +67,7 @@ class HTTP
     public static function onSearch(Event $e)
     {
         $txt = self::getControl('outputText')->getValue();
-        $stxt =  $e->getTarget()->getValue();
+        $stxt = $e->getTarget()->getValue();
         if (empty($stxt)) {
             return self::getControl('search-text')->setTitle("");
         }
@@ -79,7 +79,7 @@ class HTTP
     }
     public static function onDeleteFormInput(Event $e)
     {
-        $name =  $e->getTarget()->name;
+        $name = $e->getTarget()->name;
         $idx = array_search($name, self::$inputIds, true);
         $f = self::getControl('edit-body-form');
         $f->delete($idx);
@@ -102,9 +102,10 @@ class HTTP
         $box->appendChild($value, $vopt);
 
         $delopt = [
-            'type' => 'text', 'title' => '删除',
+            'type' => 'text',
+            'title' => '删除',
             'name' => $add,
-            'click' => $e->ui()->event([self::class, 'onDeleteFormInput'])
+            'click' => $e->ui()->event([self::class, 'onDeleteFormInput']),
         ];
         $del = new Button($e->build(), $delopt);
         $box->appendChild($del, $delopt);
@@ -120,8 +121,12 @@ class HTTP
         self::$inputIds = [];
         foreach ($params as $k => $v) {
             $box = [
-                'widget' => 'grid', 'padded' => 0, 'child_fit' => 0, 'label' => $k,
-                'child_left' => 0, 'child_top' => 2,
+                'widget' => 'grid',
+                'padded' => 0,
+                'child_fit' => 0,
+                'label' => $k,
+                'child_left' => 0,
+                'child_top' => 2,
                 'child_hexpand' => 0,
                 'child_halign' => UIAlign::ALIGN_FILL,
                 'child_vexpand' => 0,
@@ -129,81 +134,122 @@ class HTTP
                 'child_height' => 50,
                 'childs' => [
                     [
-                        'widget' => 'input', 'type' => 'text', 'label' => $k, 'value' => $v, 'id' => $k,
-                        'child_width' => 200, 'child_hexpand' => 1, 'child_vexpand' => 1,
+                        'widget' => 'input',
+                        'type' => 'text',
+                        'label' => $k,
+                        'value' => $v,
+                        'id' => $k,
+                        'child_width' => 200,
+                        'child_hexpand' => 1,
+                        'child_vexpand' => 1,
                     ],
                     [
-                        'widget' => 'button', 'name' => $k, 'child_left' => 200, 'type' => 'text', 'title' => '删除', 'child_width' => 20,
-                        'click' => $e->ui()->event([self::class, 'onDeleteFormInput'])
+                        'widget' => 'button',
+                        'name' => $k,
+                        'child_left' => 200,
+                        'type' => 'text',
+                        'title' => '删除',
+                        'child_width' => 20,
+                        'click' => $e->ui()->event([self::class, 'onDeleteFormInput']),
                     ],
-                ]
+                ],
             ];
             $childs[] = $box;
             self::$inputIds[] = $k;
         }
         $formOp = [
-            'widget' => 'box', 'dir' => 'h', 'child_fit' => 0, 'label' => '操作', 'child_height' => 50, 'child_top' => 550,
+            'widget' => 'box',
+            'dir' => 'h',
+            'child_fit' => 0,
+            'label' => '操作',
+            'child_height' => 50,
+            'child_top' => 550,
             'childs' => [
-                ['widget' => 'button', 'type' => 'text', 'title' => '确定', 'click' =>
-                $e->ui()->event(function ($e) {
-                    $newParams = [];
-                    foreach (self::$inputIds as $id) {
-                        if ($id === null) {
-                            continue;
-                        } else if (is_int($id)) {
-                            $key = self::getControl('add-key' . $id)->getValue();
-                            $value = self::getControl('add-value' . $id)->getValue();
-                            $newParams[$key] = $value;
-                        } else {
-                            $value =  self::getControl($id)->getValue();
-                            $newParams[$id] = $value;
-                        }
-                    }
-
-                    $newBody = http_build_query($newParams);
-                    self::getControl('body')->setValue($newBody);
-                    $w = self::getControl('edit-body-win');
-                    $w->hide();
-                    $w->destroy();
-                })],
-                ['widget' => 'button', 'type' => 'text', 'title' => '取消', 'click' => $e->ui()->event(function ($e) {
-                    $w = self::getControl('edit-body-win');
-                    $w->hide();
-                    $w->destroy();
-                })],
                 [
-                    'widget' => 'button', 'type' => 'text', 'title' => '增加一项',
-                    'click' => $e->ui()->event([self::class, 'addFormInput'])
+                    'widget' => 'button',
+                    'type' => 'text',
+                    'title' => '确定',
+                    'click' =>
+                        $e->ui()->event(function ($e) {
+                            $newParams = [];
+                            foreach (self::$inputIds as $id) {
+                                if ($id === null) {
+                                    continue;
+                                } elseif (is_int($id)) {
+                                    $key = self::getControl('add-key' . $id)->getValue();
+                                    $value = self::getControl('add-value' . $id)->getValue();
+                                    $newParams[$key] = $value;
+                                } else {
+                                    $value = self::getControl($id)->getValue();
+                                    $newParams[$id] = $value;
+                                }
+                            }
+
+                            $newBody = http_build_query($newParams);
+                            self::getControl('body')->setValue($newBody);
+                            $w = self::getControl('edit-body-win');
+                            $w->hide();
+                            $w->destroy();
+                        })
                 ],
-            ], 'stretchy' => 0, 'label' => '操作'
+                [
+                    'widget' => 'button',
+                    'type' => 'text',
+                    'title' => '取消',
+                    'click' => $e->ui()->event(function ($e) {
+                        $w = self::getControl('edit-body-win');
+                        $w->hide();
+                        $w->destroy();
+                    })
+                ],
+                [
+                    'widget' => 'button',
+                    'type' => 'text',
+                    'title' => '增加一项',
+                    'click' => $e->ui()->event([self::class, 'addFormInput']),
+                ],
+            ],
+            'stretchy' => 0,
         ];
 
-        $winGrid = [[
-            'widget' => 'grid',
-            'padded' => 0, 'child_fit' => 0,
-            'child_width' => '900',
-            'child_left' => 0, 'child_top' => 2,
-            'child_hexpand' => 0,
-            'child_halign' => UIAlign::ALIGN_FILL,
-            'child_vexpand' => 0,
-            'child_valign' => UIAlign::ALIGN_FILL,
-            'childs' => [
-                [
-                    'widget' => 'form',
-                    'id' => 'edit-body-form',
-                    'padded' => 0,
-                    'childs' => $childs,
-                    'child_height' => 500,
-                    'child_vexpand' => 1,
-                    'child_hexpand' => 1,
+        $winGrid = [
+            [
+                'widget' => 'grid',
+                'padded' => 0,
+                'child_fit' => 0,
+                'child_width' => '900',
+                'child_left' => 0,
+                'child_top' => 2,
+                'child_hexpand' => 0,
+                'child_halign' => UIAlign::ALIGN_FILL,
+                'child_vexpand' => 0,
+                'child_valign' => UIAlign::ALIGN_FILL,
+                'childs' => [
+                    [
+                        'widget' => 'form',
+                        'id' => 'edit-body-form',
+                        'padded' => 0,
+                        'childs' => $childs,
+                        'child_height' => 500,
+                        'child_vexpand' => 1,
+                        'child_hexpand' => 1,
+                    ],
+                    $formOp,
                 ],
-                $formOp
             ]
-        ]];
-        $winConf = ['widget' => 'window', 'id' => 'edit-body-win', 'width' => 800, 'childs' => $winGrid, 'height' => 600, 'title' => 'Edit Boyd Item', 'close' => $e->ui()->event(function (Event $e) {
-            $e->getTarget()->hide();
-            $e->getTarget()->destroy();
-        })];
+        ];
+        $winConf = [
+            'widget' => 'window',
+            'id' => 'edit-body-win',
+            'width' => 800,
+            'childs' => $winGrid,
+            'height' => 600,
+            'title' => 'Edit Boyd Item',
+            'close' => $e->ui()->event(function (Event $e) {
+                $e->getTarget()->hide();
+                $e->getTarget()->destroy();
+            })
+        ];
         $win = $e->build()->window($winConf, false);
         $win->show();
     }
@@ -258,9 +304,10 @@ class HTTP
         $txt = self::getControl('outputText')->getValue();
         $string = $build->createItem(['widget' => 'string', 'string' => $txt, 'color' => 'rgba(33,33,33,0.8)']);
         $mt = $font->queryFontMetrics();
+        var_dump($mt);
+
         $line = substr_count($txt, PHP_EOL);
         self::$drawHeight = ($mt['textHeight'] + $mt['maxHorizontalAdvance']) * $line;
-
         self::addTextColor($string);
 
         $textPrams = new TextLayoutParams($build, $string, $font, 1000, DrawTextAlign::DRAW_TEXT_ALIGN_LEFT);
@@ -287,35 +334,35 @@ class HTTP
         $len = strlen($text);
 
         $nest = 0;
-        for($i=0;$i<$len; $i++) {
+        for ($i = 0; $i < $len; $i++) {
             $char = $text[$i];
             $bit = ord($char);
             $c = 6;
 
-            while(($bit & 128) && ($bit &( 1<< $c ))) {
+            while (($bit & 128) && ($bit & (1 << $c))) {
                 $i++;
                 $char .= $text[$i];
                 $c--;
             }
-            if($char == "'") {
-                if($nest) {
-                    $str->addAttr('color', '#5faa2c', $nest, $i +1);
+            if ($char == "'") {
+                if ($nest) {
+                    $str->addAttr('color', '#5faa2c', $nest, $i + 1);
                     $nest = 0;
                 } else {
                     $nest = $i;
                 }
-            } elseif($char == '(' && !$nest) {
-                $str->addAttr('color', '#aa2c90', $i, $i+1);
-            } else if($char == ')' && !$nest) {
-                $str->addAttr('color', '#aa2c90', $i, $i+1);
-            } else if($char == '=') {
+            } elseif ($char == '(' && !$nest) {
+                $str->addAttr('color', '#aa2c90', $i, $i + 1);
+            } elseif ($char == ')' && !$nest) {
+                $str->addAttr('color', '#aa2c90', $i, $i + 1);
+            } elseif ($char == '=') {
                 $i++;
-                if($text[$i] == '>') {
-                    $str->addAttr('color', '#aa2c90', $i - 1, $i+1);
+                if ($text[$i] == '>') {
+                    $str->addAttr('color', '#aa2c90', $i - 1, $i + 1);
                 }
-            } else if(!$nest && $char == 'a' && "{$text[$i+1]}{$text[$i+2]}{$text[$i+3]}{$text[$i+4]}"== 'rray') {
-                $str->addAttr('color', '#aa2c90', $i, $i+5);
-                $i = $i+4;
+            } elseif (!$nest && $char == 'a' && "{$text[$i + 1]}{$text[$i + 2]}{$text[$i + 3]}{$text[$i + 4]}" == 'rray') {
+                $str->addAttr('color', '#aa2c90', $i, $i + 5);
+                $i = $i + 4;
             }
         }
     }
@@ -326,13 +373,13 @@ class HTTP
         $event = $e->mouseEvent;
         if ($event['down'] == 1 && $event['count'] == 1) {
             var_dump('mp down');
-        } else if ($event['down'] == 1 && $event['count'] == 2) {
+        } elseif ($event['down'] == 1 && $event['count'] == 2) {
             var_dump('double');
-        } else if ($event['up'] == 1) {
+        } elseif ($event['up'] == 1) {
             var_dump('mp up');
-        } else if ($event['drag'] == 1) {
+        } elseif ($event['drag'] == 1) {
             var_dump('mouse hold');
-        } else if ($event['up'] == 3 && $event['count'] == 1) {
+        } elseif ($event['up'] == 3 && $event['count'] == 1) {
         }
     }
     public static function onmouseCrossed($e)
@@ -438,7 +485,7 @@ class HTTP
         $pid = pcntl_fork();
         if ($pid > 0) {
             exit;
-        } else if ($pid < 0) {
+        } elseif ($pid < 0) {
             throw new \RuntimeException('process fork fail');
         }
 
@@ -451,7 +498,7 @@ class HTTP
         $pid = pcntl_fork();
         if ($pid > 0) {
             exit;
-        } else if ($pid < 0) {
+        } elseif ($pid < 0) {
             throw new \RuntimeException('process fork fail');
         }
     }
