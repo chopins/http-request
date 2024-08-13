@@ -432,8 +432,10 @@ class HTTP
             $op[CURLOPT_POST] = 1;
         }
         $op[CURLOPT_HTTPHEADER] = $hs;
-
+        $op[CURLOPT_CONNECTTIMEOUT] = 3;
         $op[CURLOPT_RETURNTRANSFER] = 1;
+        $op[CURLOPT_TIMEOUT] = 5;
+        $op[CURLOPT_CONNECTTIMEOUT_MS] = 3000;
         if (!empty($params['body'])) {
             $op[CURLOPT_POSTFIELDS] = $params['body'];
         }
